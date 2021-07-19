@@ -1,0 +1,312 @@
+---
+title: "COMCAST PROJECT"
+author: "Rahul Ranjan"
+date: "23/01/2021"
+output:
+  word_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+Checking for working directory.
+```{r}
+getwd()
+#setwd()
+```
+
+TASK-1 : Importing dataset into the environment and performing exploratory data analysis.
+```{r}
+df=read.csv("~/Rahul/Comcast Telecom Complaints data.csv", stringsAsFactors = TRUE)
+```
+Apart from this we have different other ways to bring the dataset into the R environment,like using Import Dataset from the environment pane.           Using df = read.csv(file.choose(),stringsAsFactors=TRUE) i.e., using the file.choose function
+
+Here it has been indicated to consider all variable column with string data type to be treated as factor data, i.e., it will store it in categorical format.
+
+View(df)
+
+View(df) is for viewing the dataset in the new tab. Shows all the information present in the dataset for example sort, filter, check levels/factors and other informations.
+```{r}
+#This chunk of code helps you set output of rmarkdown to given no.of rows and columns. I have used it only while creating codes for better understanding of data and will be commenting it out after completion of project.
+#options(max.print = 2224 *10)
+options(max.print = 20 *10)
+#df
+```
+Above is the another way to directly view dataset in the console and max print to print maximum allowed entries as 1000. We can set it at 2224 to view all rows  
+```{r}
+head(df,10)
+```
+head() by default shows the snap of top 6 rows of the dataframe, here specified as 10.
+```{r}
+tail(df,5)
+```
+tail() function shows last 6 rows by default, unless specified otherwise.
+
+
+```{r}
+dim(df)
+nrow(df)
+ncol(df)
+rownames(df)
+colnames(df)
+```
+
+For structural information we can use dim(), nrow(), ncol() and for seeing row names and column names we can use rownames(), colnames().
+
+```{r}
+class(df)
+sapply(df, class)
+str(df)
+```
+
+To see the class/data type of df we can use class() and to see the datatype of each variable present in the dataframe we can use sapply() function. And finally use str(), structure function to give description about total structure of dataframe in short.
+```{r}
+summary(df)
+```
+This is a basic statistical function which gives summary of the dataframe by giving the counts for factor data, and mean, median, quartiles for numerical data. 
+
+Here we can see that maximum complaints have been filled by customer themselves, but 203 complaints has been lodged on behalf of someone, means that may be few customer are senior citizen or children who are facing issue with the services provided, who are taking help of others to lodge complains.
+
+We also get insights after seeing the status variable that maximum complaints have been solved or closed.
+
+We can also see that no. of complaint lodge through internet and call are almost equal.
+
+We did also find out that max. no. of complaints has been lodged on 24_06-15, with max complaints in month of June.
+All these insights can be inferred just by having a glance at the summary function's output. 
+
+```{r}
+colSums(is.na(df))
+```
+The above command shows that there are no null values present in any column.
+
+```{r}
+df[duplicated(df),]
+```
+
+```{r}
+sum(duplicated(df))
+```
+
+The above two codes show that there are no duplicate entries present in the dataframe.
+In all the codes present above we have done the basic exploratory data analysis.
+ 
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+TASK-2 : Provide the trend chart for the number of complaints at monthly and daily granularity levels.
+ 
+
+install.packages('lubridate')
+library('lubridate')
+We can use the above two command to install and invoke the lubridate package to deal with date time variable present in the dataframe.But as I am using cloud lab I can directly go to the package window in the 4th pane to check the lubridate package by searching it, to invoke it.
+
+```{r}
+str(df)
+```
+
+
+```{r}
+#View(df)
+df$Date
+```
+
+```{r}
+class(df$Date)
+```
+
+From above we can see that date is present as factor datatype variable in different formats & we need to convert it into date time datatype for manipulation.
+
+```{r}
+library(lubridate)
+df$Date <- dmy(df$Date) #Converting factor datatype to date datatype using dmy() function.
+class(df$Date)
+```
+
+ 
+```{r}
+str(df)
+```
+```{r}
+#View(df)
+```
+Here we can see that the date column datatype has been converted from factor datatype to date datatype.
+Now we can use the data for visualization
+```{r}
+no.of_complaints <- table(df$Date)
+no.of_complaints
+```
+
+```{r,fig.dim = c(11, 8)}
+barplot(no.of_complaints,
+main = "Trend chart at daily granularity level",
+xlab = "Days",
+ylab = "No. of complaints",
+col = "lightblue")
+```
+```{r,fig.dim = c(11, 8)}
+plot(no.of_complaints,type = "l",
+     main = "Trend chart at daily granularity level",
+     xlab = "Days",
+     ylab = "No. of complaints")
+```
+```{r}
+sort(no.of_complaints, dec=T)
+```
+
+From above, it can be inferred that during the last of June month i.e., from 24th to 30th the no. of complaints are highest, may be due to some infrastructure failure, requires a more precise investigation, it may also give insight that may be due to some holiday and increased users, the system might have crashed and thus may need some infrastructural upgradation to tackle circumstances such as these in near future.
+```{r}
+df$Month <- strftime(df$Date,"%m-%y")
+df$Month
+```
+
+```{r}
+counts1 <- table(df$Month)
+counts1
+```
+
+```{r,fig.dim = c(11, 8)}
+barplot(counts1,
+main = "Trend chart at monthly granularity level",
+xlab = "Months",
+ylab = "No. of complaints",
+col = "lightblue")
+```
+
+```{r,fig.dim = c(11, 8)}
+plot(counts1, type='b',
+main = "Trend chart at monthly granularity level",
+xlab = "Months",
+ylab = "No. of complaints")
+```
+
+As clearly visible, & so can be inferred from the trend chart that maximum complaints have been lodged during the 6th(June) month., whereas the increase in no. of complaints can be observed from the month of April itself. Seeing this we can predict that such a circumstance may arise during this specific period in the upcoming years also.Thus the management can prepare themselves before hand to handle any such situation by properly investigating the reason for increased complaints and putting proper resources in place to tackle this.
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+TASK-3 :Provide a table with the frequency of complaint types.
+
+
+```{r}
+#tolower(df$Customer.Complaint)
+frequency_of_complaint_types <- head(sort(table(tolower(df$Customer.Complaint)),dec=T),30)
+frequency_of_complaint_types
+```
+Here we can see the table of top 30 complaints type.
+
+Now we need to make a frequency table on the basis of complaint types.
+```{r}
+library(dplyr) #loading package dplyr
+# Complaint Type Processing
+network_tickets<- contains(df$Customer.Complaint,match = 'network',ignore.case = T)
+internet_tickets<- contains(df$Customer.Complaint,match = 'internet',ignore.case = T)
+billing_tickets<- contains(df$Customer.Complaint,match = 'bill',ignore.case = T)
+email_tickets<- contains(df$Customer.Complaint,match = 'email',ignore.case = T)
+charges_ticket<- contains(df$Customer.Complaint,match = 'charge',ignore.case = T)
+df$ComplaintType[internet_tickets]<- "Internet"
+df$ComplaintType[network_tickets]<- "Network"
+df$ComplaintType[billing_tickets]<- "Billing"
+df$ComplaintType[email_tickets]<- "Email"
+df$ComplaintType[charges_ticket]<- "Charges"
+df$ComplaintType[-c(internet_tickets,network_tickets,
+                              billing_tickets,charges_ticket,email_tickets)]<- "Others"
+names(df)
+df$ComplaintType
+table(df$ComplaintType)
+```
+
+
+From above table it can be inferred that maximum complaints are regarding internet usage issue,be it on data cap or on slow speed then followed by billing issue and one more part as "comcast" having highest complaint needs to be analysed using other package related to text analytics to gain more insight about  what it contains and why it has been highlighted to be at the top.
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+TASK-4: Create a new categorical variable with value as Open and Closed. Open & Pending is to be categorized as Open and Closed & Solved is to be categorized as Closed.
+
+
+
+```{r}
+#df$Status
+df$new_status <- ifelse(df$Status=="Open"|df$Status=="Pending","Open","Closed")
+df$new_status
+```
+
+A new categorical variable(new_status) with value as Open and Closed has been created. Open & Pending has been categorized as Open and Closed & Solved has been categorized as Closed.
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+TASK-5: Provide state wise status of complaints in a stacked bar chart, using newly created catagorised variable(new_status).
+```{r,fig.dim = c(11, 7)}
+# Loading package ggplot2
+
+library(ggplot2)
+
+# Ploting the basic frame of the stacked bar chart.
+
+ggplot(data = df, aes(x = State, fill = new_status)) + 
+    geom_bar(width = .8)+
+     theme(axis.text.x = element_text(angle = 90),
+        axis.title.y = element_text(size = 15),
+        axis.title.x = element_text(size = 15),
+        title = element_text(size = 16),
+        plot.title = element_text(hjust =  0.5))+
+  labs(title = "Ticket Status Stacked Bar Chart ",
+       x = "States",y = "No of Tickets",
+       fill= "Status")
+```
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+TASK-6: Which state has the maximum complaints
+
+```{r}
+q <- table(df$State,df$new_status) 
+df1 <- as.data.frame.matrix(q)  #Converting table into dataframe.
+df1$Total <- df1$Closed+df1$Open
+df1
+```
+
+
+```{r}
+df1[df1$Closed==max(df1$Closed),]
+df1[df1$Open==max(df1$Open),]
+df1[df1$Total==max(df1$Total),]
+```
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+TASK-7: Which state has the highest percentage of unresolved complaints
+
+```{r}
+df1$ percent_unresolved <- (df1$Open/df1$Total)*100
+df1
+df1[max(df1$percent_unresolved)==df1$percent_unresolved,]
+```
+
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+TASK-8: Provide the percentage of complaints resolved till date, which were received through theInternet and customer care calls.
+```{r}
+w <- table(df$Received.Via,df$new_status)
+df2 <- as.data.frame.matrix(w)
+df2
+```
+```{r}
+df2$Total <- df2$Closed+df2$Open
+df2$percent_resolved <- (df2$Closed/df2$Total)*100
+df2
+```
+
+Though finally we can see that the total percentage of resolved case are high but why so many complaints are being lodged at the very first place, has to be diagnosed. And then accordingly steps should be taken to weed out the cause for complaints, thus providing better service to their customer base.
+
+Task completed.
+Thankyou.
